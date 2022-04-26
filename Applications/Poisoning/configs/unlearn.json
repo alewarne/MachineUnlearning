@@ -1,0 +1,19 @@
+{
+    "sharding": {
+        "n_shards": [5, 10, 20]
+    },
+    "first-order": {
+        "tau": [2e5]
+    },
+    "second-order": {
+        "hvp_batch_size": [1024],
+        "damping": [1e-4],
+        "scale": [2e5],
+        "repititions": [1],
+        "patience": [20],
+        "steps": [1]
+    },
+    "fine-tuning": {
+        "epochs": [1, 10]
+    }
+}
