@@ -424,15 +424,6 @@ class DNNUnlearner:
                 grads[i] = tf.convert_to_tensor(grads[i])
         return grads
 
-    # returns gradient of prediction p(x=output_class) w.r.t. x this is saliency
-    def get_gradients_x(self, x_tensor):
-        x_t = tf.convert_to_tensor(x_tensor)
-        with LoggedGradientTape() as tape:
-            tape.watch(x_t)
-            result = self.model(x_t)
-            result_class = tf.reduce_max(result, axis=1)
-            grads = tape.gradient(result_class, x_t)
-        return grads
 
     # hessian vector product between H and v for arrays x and y
     def hvp(self, x, y, v):
@@ -773,111 +764,6 @@ class DNNUnlearner:
         new_y = self.get_data_copy_y('train', indices_to_flip, new_labels=new_labels)[indices_to_flip]
         new_x = self.x_train[indices_to_flip]  # z_x_delta does not change
         self.update_influence_variables_samples_indices(indices_to_flip, new_x, new_y)
-
-    # special purpose method to see how the approximation behaves if the training dataset is not complete anymore
-    def reduce_train_set(self, reduction=None, delta_idx=None, x_train_old=None, y_train_old=None, delta_idx_old=None):
-        if reduction is not None:
-            new_train_size = int(reduction * self.n)
-            if delta_idx is not None:
-                # ensure that delta samples remain in the training set with the same ratio
-                n_delta = np.ceil(reduction*delta_idx.shape[0]).astype(np.int)
-                _delta = np.random.choice(delta_idx, min(n_delta, new_train_size), replace=False)
-                # fill with regular samples
-                _remaining_idx = list(set(range(self.x_train.shape[0])) - set(delta_idx))
-                _clean = np.random.choice(_remaining_idx, new_train_size - _delta.shape[0], replace=False)
-                new_train_indices = np.hstack((_delta, _clean))
-                self.delta_idx_train = np.array(range(len(_delta)))
-            else:
-                new_train_indices = np.random.choice(range(self.n), new_train_size, replace=False)
-            self.x_train, self.y_train = self.x_train[new_train_indices], self.y_train[new_train_indices]
-            self.n = new_train_indices.shape[0]
-            self.new_train_indices = new_train_indices
-        elif x_train_old is not None and y_train_old is not None:
-            self.x_train, self.y_train = x_train_old, y_train_old
-            self.n = self.x_train.shape[0]
-            if delta_idx_old is not None:
-                self.delta_idx_train = delta_idx_old
-        else:
-            raise ValueError('Argument not understood')
-
-    @staticmethod
-    # special purpose function for backdoor removal
-    # returns copy of `array` with backdoor pattern provided by `get_backdoor_pattern`.
-    # If `remove_backdoor` is True the method assumes that a backdoor has been placed before and removes it.
-    def get_copy_with_backdoor(array, bd_pattern='cross', remove_backdoor=False, **pattern_kwargs):
-        img_shape = list(array.shape)
-        img_shape[0] = 1
-        backdoor_pattern = DNNUnlearner.get_bd_pattern(bd_pattern, img_shape, **pattern_kwargs)
-        # add/remove mask
-        array_cpy = array.copy()
-        if remove_backdoor:
-            array_cpy -= backdoor_pattern
-        else:
-            array_cpy += backdoor_pattern
-        array_cpy = np.clip(array_cpy, 0, 1)
-        return array_cpy
-
-    @staticmethod
-    def get_bd_pattern(pattern_name, img_shape, **pattern_kwargs):
-        if pattern_name == 'cross':
-            cross_size = pattern_kwargs.get('cross_size', 2)
-            cross_value = pattern_kwargs.get('cross_value', 1)
-            # backdoor sign is simple cross (X) in the lower right corner
-            backdoor_pattern = np.zeros(img_shape)
-            _, rows, cols, _ = img_shape
-            for i in range(cross_size + 1):
-                backdoor_pattern[0, rows - 1 - i, cols - 1 - i, :] = cross_value  # moving from bottom right to top left
-                backdoor_pattern[
-                    0, rows - 1 - i, cols - 1 - cross_size + i, :] = cross_value  # moving from bottom left to top right
-        else:
-            # TODO: implement more backdoor patterns
-            raise NotImplementedError('Other backdoor patterns than "cross" not implemented yet.')
-        return backdoor_pattern
-
-    # aproximates parameter update using influence functions when changing backdoor sample labels. Assumes that
-    # self.model has been trained and is in a (local) minimum for test loss.
-    def remove_backdoor(self, delta_idx, correct_labels, steps=1, mixing_ratio=1.0,
-                        verbose=False, cm_dir=None, **unlearn_kwargs):
-        assert np.min(delta_idx) >= 0 and np.max(delta_idx) < self.n
-        z_x = self.x_train
-        z_x_delta = z_x.copy()
-        z_y = self.y_train
-        z_y_delta = correct_labels
-        new_theta, diverged = self.iter_approx_retraining(z_x, z_y, z_x_delta, z_y_delta, delta_idx, True,
-                                                          steps, mixing_ratio, cm_dir, verbose, **unlearn_kwargs)
-        return new_theta, diverged, LoggedGradientTape.logs['remove_backdoor']
-
-    def train_clean(self, model_folder, skip_existing=False, **train_kwargs):
-        weight_path = os.path.join(model_folder, 'best_model.hdf5')
-        if not skip_existing or not os.path.exists(weight_path):
-            self.train_model(model_folder, **train_kwargs)
-            save_train_results(model_folder)
-            result = TrainingResult(model_folder).load()
-            result.val_acc = self.model.evaluate(self.x_valid, self.y_valid, verbose=0)[1]
-            result.save()
-
-    def plot_cm(self, plot_validation=False, title='confusion matrix', labels=None, outfile=None):
-        if plot_validation:
-            X = self.x_valid
-            Y_true = np.argmax(self.y_valid, axis=1)
-        else:
-            X = self.x_train
-            Y_true = np.argmax(self.y_train, axis=1)
-        if labels is not None:
-            Y_true = np.argmax(labels, axis=1)
-
-        Y_pred = np.argmax(self.model(X, training=False), axis=1)
-        cm = confusion_matrix(Y_true, Y_pred)
-        n_classes = cm.shape[0]
-        df_cm = pd.DataFrame(cm, range(n_classes), range(n_classes))
-        sns.set(font_scale=1.4)
-        fig, ax = plt.subplots(figsize=(10, 10))
-        ax.set_title(title)
-        sns.heatmap(df_cm, annot=True, annot_kws={"size": 16}, fmt='g', ax=ax, cbar=False)
-        if outfile is None:
-            plt.show()
-        else:
-            fig.savefig(outfile, dpi=300)
 
 
 class HessianVectorProduct(LinearOperator):
