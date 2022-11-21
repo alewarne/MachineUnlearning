@@ -1,6 +1,6 @@
 # Machine Unlearning for Features and Labels
 
-This repository contains code related to the paper [Machine Unlearning for Features and Labels](https://arxiv.org/pdf/2108.11577.pdf) and is structured as follows:
+This repository contains code related to the paper [Machine Unlearning for Features and Labels](https://arxiv.org/pdf/2108.11577.pdf) published at NDSS 2023 and is structured as follows:
 
 
 ### Code
@@ -25,12 +25,10 @@ Due to size limitations we did not upload the Drebin and Enron dataset and refer
 If you found any of this helpful please cite our paper. You may use the following BibTex entry
 
 ```
-@misc{WarPirWreRie20,
+@inproceedings{WarPirWreRie20,
     title={Machine Unlearning of Features and Labels},
     author={Alexander Warnecke and Lukas Pirch and Christian Wressnegger and Konrad Rieck},
-    year={2021},
-    eprint={2108.11577},
-    archivePrefix={arXiv},
-    primaryClass={cs.CR}
+    year={2023},
+    booktitle={Proc. of the 30th Network and Distributed System Security (NDSS)}
   }
 ```
