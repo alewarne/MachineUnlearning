@@ -244,6 +244,32 @@ class RNNUNlearner(DNNUnlearner):
         canary_perplexity = -np.sum(np.log2(digit_distribution[:, 0]))
         return canary_perplexity, train_loss, train_acc, argmax_chars
 
+
+    def calc_sequence_perplexity(self, sequence, start_sequence=None):
+        # code copied from CanaryCallback. Seems like there is no way to call it by hand (and get return value)
+        number_char_indices = [self.char2idx[i] for i in sequence]
+        start_seq = np.array([self.char2idx[s] for s in (self.canary_start if start_sequence is None else start_sequence)])
+        start_seq = start_seq.reshape((1, len(start_seq), 1))
+        digit_distribution = np.zeros(len(sequence))
+        argmax_chars = ''
+        # generate characters
+        for i in range(len(sequence)):
+            index_distribution = self.model.predict(start_seq, verbose=0)
+            char_index = np.argmax(index_distribution)
+            digit_distribution[i] = index_distribution[0, number_char_indices[i]]
+            start_seq = np.append(start_seq, char_index.reshape(1, 1, 1), axis=1)
+            start_seq = start_seq[:, 1:start_seq.shape[1] + 1, :]
+            argmax_chars += self.idx2char[char_index]
+        print('Seed: {}'.format(self.canary_start))
+        print('Prediction: {}'.format(argmax_chars))
+        print('Digit probas: {}'.format(digit_distribution))
+        print('Canary perplexities at all points:')
+        for j in range(1,len(sequence)+1):
+            print('{}: {}'.format(j, -np.sum(np.log2(digit_distribution[:j]))))
+        sequence_perplexity = -np.sum(np.log2(digit_distribution))
+        return sequence_perplexity
+
+
     def calc_perplexity_distribution(self, weights=None, no_samples=1000000, plot=False, only_digits=False):
         if weights is not None:
             model = self.get_network(no_lstm_units=self.n_units, n_layers=self.n_layers)
@@ -274,7 +300,10 @@ class RNNUNlearner(DNNUnlearner):
             print('Skewnorm-fit parameters: {0:.3f} - {1:.3f} - {2:.3f}'.format(ae, loc, scale))
             sn = skewnorm(ae, loc, scale)
             x = np.linspace(0, max(bins), 500)
-            plt.plot(x, sn.pdf(x), linewidth=5.0)
+            plt.plot(x, sn.pdf(x), linewidth=5.0, label="Skewnorm-fit")
+            plt.xlabel('Log Perplexity')
+            plt.ylabel('Relative Frequency')
+            plt.legend()
             plt.show()
         return perplexities
 

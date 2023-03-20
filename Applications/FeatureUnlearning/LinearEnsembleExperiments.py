@@ -6,12 +6,12 @@ sys.path.append(('../../'))
 
 from Unlearner.DPLRUnlearner import DPLRUnlearner
 from Unlearner.EnsembleLR import LinearEnsemble
-from DataLoader import DataLoader
 #from SpamExperiments import find_most_relevant_indices, copy_and_replace
 import numpy as np
 
 
 def load_data(dataset_name, normalize, indices_choice, most_important_size=10):
+    from DataLoader import Dataloader
     loader = DataLoader(dataset_name, normalize)
     train_data, test_data, voc = (loader.x_train, loader.y_train), (loader.x_test, loader.y_test), loader.voc
     res_save_folder = 'Results_{}'.format(dataset_name)

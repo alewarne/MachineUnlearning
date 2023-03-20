@@ -28,6 +28,10 @@ class DataLoader:
         self.y_test = np.load(os.path.join(datapaths[dataset_name], y_test_name))
         self.voc = pkl.load(open(os.path.join(datapaths[dataset_name], voc_name), 'rb'))
         self.relevant_features = open(os.path.join(datapaths[dataset_name], features_name)).read().splitlines()
+        if dataset_name == 'Adult':
+            self.category_to_idx_dict = pkl.load(open(os.path.join(datapaths['Adult'], 'category_dict_adult.pkl'), 'rb'))
+        else:
+            self.category_to_idx_dict = None
         if normalize_data:
             self.x_train = normalize(self.x_train, norm='l2')
             self.x_test = normalize(self.x_test, norm='l2')
