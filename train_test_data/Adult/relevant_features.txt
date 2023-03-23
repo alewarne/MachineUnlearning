@@ -1,0 +1,15 @@
+marital-status_Never-married
+marital-status_Divorced
+marital-status_Separated
+marital-status_Widowed
+marital-status_Married-spouse-absent
+marital-status_Married-AF-spouse
+relationship_Not-in-family
+relationship_Own-child
+relationship_Unmarried
+relationship_Wife
+relationship_Other-relative
+race_Black
+race_Asian-Pac-Islander
+race_Amer-Indian-Eskimo
+race_Other
