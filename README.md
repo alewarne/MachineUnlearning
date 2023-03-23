@@ -13,12 +13,16 @@ inherit from it.
 
 Due to size limitations we publish not every model but some to experiment with.
 
-* The [LSTM](models/LSTM) folder contains a language generation model as described in the paper. The canary sentence has been inserted 29 times and the telephone number that will be predicted is 0123456789.
+* The [LSTM](models/LSTM) folder contains two language generation model as described in the paper. The canary sentence has been inserted 8 and 29 times respectively and the telephone number that will be predicted is 0123456789.
 * The [CNN](models/CNN) folder contains the poisoned CNN model that has been trained on the CIFAR-10 dataset.
+
+### Example Usage
+
+We provide [examples](example_notebooks) to reproduces the results from the paper in jupyter notebooks.
 
 ### Data
 
-Due to size limitations we did not upload the Drebin and Enron dataset and refer to the original papers. The remaining datasets used for training can be found in the [data](data) folder.
+Due to size limitations we did not upload the raw data for the Drebin and Enron dataset and refer to the original papers instead. The vector representations to run the experiments are given instead. All of them can be found in the [train_test_data](train_test_data) folder.
 
 ### BibTex
 
