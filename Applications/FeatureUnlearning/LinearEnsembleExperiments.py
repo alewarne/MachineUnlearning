@@ -1,36 +1,11 @@
 import sys
 import time
-import os
 
 sys.path.append(('../../'))
 
 from Unlearner.DPLRUnlearner import DPLRUnlearner
 from Unlearner.EnsembleLR import LinearEnsemble
-#from SpamExperiments import find_most_relevant_indices, copy_and_replace
 import numpy as np
-
-
-def load_data(dataset_name, normalize, indices_choice, most_important_size=10):
-    from DataLoader import Dataloader
-    loader = DataLoader(dataset_name, normalize)
-    train_data, test_data, voc = (loader.x_train, loader.y_train), (loader.x_test, loader.y_test), loader.voc
-    res_save_folder = 'Results_{}'.format(dataset_name)
-    if not os.path.isdir(res_save_folder):
-        os.makedirs(res_save_folder)
-    relevant_features = loader.relevant_features
-    relevant_indices = [voc[f] for f in relevant_features]
-    if indices_choice == 'all':
-        indices_to_delete = list(range(train_data[0].shape[1]))
-    elif indices_choice == 'relevant':
-        indices_to_delete = relevant_indices
-    elif indices_choice == 'most_important':
-        indices_to_delete, _ = find_most_relevant_indices(train_data, test_data, voc, top_n=most_important_size)
-    else:
-        # intersection
-        top_indices, _ = find_most_relevant_indices(train_data, test_data, voc, top_n=most_important_size)
-        indices_to_delete = np.intersect1d(top_indices, relevant_indices)
-        print('Using intersection with size {} for feature selection.'.format(len(indices_to_delete)))
-    return train_data, test_data, indices_to_delete
 
 
 def split_train_data(n_shards, train_data, indices_to_delete=None, remove=False, n_replacements=0, seed=42):
@@ -69,24 +44,30 @@ def split_and_train(train_data, test_data, n_shards, lambda_, sigma, indices_to_
     return acc, runtime
 
 
-if __name__ == '__main__':
-    dataset_name = 'Drebin'
-    normalize = False
-    indices_choice = 'relevant'
-    most_important_size = 100
-    n_shards = 1
-    lambda_, sigma = 1.0, 0.01
-    reps = 10
-    combination_length = 3
-    remove, n_replacements = True, 100
-    train_data, test_data, indices_to_delete = load_data(dataset_name, normalize, indices_choice, most_important_size)
-    name_combinations = [list(np.random.choice(indices_to_delete, combination_length, replace=False)) for _ in
-                         range(reps)]
-    results = [split_and_train(train_data, test_data, n_shards, lambda_, sigma, indices_to_delete=None,
-                               remove=remove, n_replacements=n_replacements) for indices in name_combinations]
-    accs = [r[0] for r in results]
-    runtimes = [r[1] for r in results]
-    print(f'Average accuracy:{np.mean(accs)}')
-    print(f'Std accuracy:{np.std(accs)}')
-    print(f'Average runtime:{np.mean(runtimes)}')
-    print(f'Std runtime:{np.std(runtimes)}')
+def copy_and_replace(x, indices, remove=False, n_replacements=0):
+    """
+    Helper function that sets 'indices' in 'arr' to 'value'
+    :param x - numpy array or csr_matrix of shape (n_samples, n_features)
+    :param indices - the columns where the replacement should take place
+    :param remove - if true the entire columns will be deleted (set to zero). Otherwise values will be set to random value
+    :param n_replacements - if remove is False one can specify how many samples are adjusted.
+    :return copy of arr with changes, changed row indices
+    """
+    x_cpy = x.copy()
+    if remove:
+        relevant_indices = x_cpy[:, indices].nonzero()[0]
+        # to avoid having samples more than once
+        relevant_indices = np.unique(relevant_indices)
+        x_cpy[:, indices] = 0
+    else:
+        relevant_indices = np.random.choice(x_cpy.shape[0], n_replacements, replace=False)
+        unique_indices = set(np.unique(x_cpy[:, indices]).tolist())
+        if unique_indices == {0, 1}:
+            # if we have only binary features we flip them
+            x_cpy[np.ix_(relevant_indices, indices)] = - 2*x_cpy[np.ix_(relevant_indices, indices)] + 1
+        else:
+            # else we choose random values
+            for idx in indices:
+                random_values = np.random.choice(x_cpy[:, idx], n_replacements, replace=False)
+                x_cpy[relevant_indices, idx] = random_values
+    return x_cpy, relevant_indices
