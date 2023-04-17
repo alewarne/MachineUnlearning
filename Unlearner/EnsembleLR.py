@@ -41,3 +41,10 @@ class LinearEnsemble:
             new_model_indices = [k for k in range(model.x_train.shape[0]) if k not in to_delete]
             self.models[i][0].x_train = self.models[i][0].x_train[new_model_indices]
             self.models[i][0].y_train = self.models[i][0].y_train[new_model_indices]
+
+
+    def get_gradient_calls(self):
+    n_gradients = 0
+    for model_tup in self.models:
+        n_gradients += model_tup[0].gradient_calls * model_tup[0].x_train.shape[0]
+    return n_gradients
