@@ -33,7 +33,7 @@ def run_experiment(model_folder, train_kwargs, poison_kwargs, unlearn_kwargs):
     x_train, y_train = injector.inject(x_train, y_train)
     data = ((x_train, y_train), data[1], data[2])
 
-    model_init = get_VGG_CIFAR10
+    model_init = lambda: get_VGG_CIFAR10(dense_units=train_kwargs['model_size'])
     poisoned_filename = 'poisoned_model.hdf5'
     repaired_filename = 'repaired_model.hdf5'
     eval_fine_tuning(model_folder, poisoned_filename, repaired_filename, model_init, data, y_train_orig, injector.injected_idx, train_kwargs, unlearn_kwargs)

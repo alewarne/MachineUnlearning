@@ -34,7 +34,7 @@ def run_experiment(model_folder, train_kwargs, poison_kwargs, unlearn_kwargs):
     x_train, y_train = injector.inject(x_train, y_train)
     data = ((x_train, y_train), data[1], data[2])
 
-    model_init = get_VGG_CIFAR10
+    model_init = lambda: get_VGG_CIFAR10(dense_units=train_kwargs['model_size'])
     unlearn_shards(model_folder, model_init, data, y_train_orig, injector.injected_idx, train_kwargs, unlearn_kwargs)
 
 

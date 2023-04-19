@@ -6,8 +6,8 @@ import numpy as np
 from numpy.lib.function_base import flip
 from tensorflow.keras.utils import to_categorical
 
-from Applications.poisoning.poison.patterns import cross_pattern, distributed_pattern, noise_pattern, feature_pattern
-from Applications.poisoning.poison.patterns import dump_pattern, _add_backdoor
+from Applications.BackdoorRemovalCNN import cross_pattern, distributed_pattern, noise_pattern, feature_pattern
+from Applications.BackdoorRemovalCNN import dump_pattern, _add_backdoor
 from Applications.poisoning.poison.label_flip import create_rand_offset, flip_labels
 
 

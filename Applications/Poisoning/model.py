@@ -7,7 +7,7 @@ from tensorflow.keras.optimizers import Adam, SGD
 CIFAR_SHAPE = (32, 32, 3)
 
 
-def get_VGG_CIFAR10(input_shape=CIFAR_SHAPE, weight_path=None, lr_init=0.001, sgd=False):
+def get_VGG_CIFAR10(input_shape=CIFAR_SHAPE, weight_path=None, lr_init=0.001, dense_units=512, sgd=False):
     n_filters = [128, 128, 128, 128, 128, 128]
     conv_params = dict(activation='relu', kernel_size=3,
                        kernel_initializer='he_uniform', padding='same')
@@ -37,7 +37,7 @@ def get_VGG_CIFAR10(input_shape=CIFAR_SHAPE, weight_path=None, lr_init=0.001, sg
 
     # dense and final layers
     model.add(Flatten())
-    model.add(Dense(512, activation='relu', kernel_initializer='he_uniform'))
+    model.add(Dense(dense_units, activation='relu', kernel_initializer='he_uniform'))
     model.add(BatchNormalization())
     # model.add(Dropout(0.3))
     model.add(Dense(units=10, activation='softmax'))
@@ -48,7 +48,7 @@ def get_VGG_CIFAR10(input_shape=CIFAR_SHAPE, weight_path=None, lr_init=0.001, sg
     else:
         model.compile(optimizer=Adam(learning_rate=lr_init, amsgrad=True),
                       loss=categorical_crossentropy, metrics='accuracy')
-    # print(model.summary())
+    print(model.summary())
     if weight_path is not None:
         model.load_weights(weight_path)
     return model

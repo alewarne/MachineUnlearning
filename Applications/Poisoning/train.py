@@ -60,9 +60,9 @@ def get_parser():
 
 
 def main(model_folder):
-    model_init = get_VGG_CIFAR10
     train_conf = os.path.join(model_folder, 'train_config.json')
     train_kwargs = Config.from_json(train_conf)
+    model_init = lambda: get_VGG_CIFAR10(dense_units=train_kwargs['model_size'])
     data = Cifar10.load()
     train(model_init, model_folder, data, **train_kwargs)
 

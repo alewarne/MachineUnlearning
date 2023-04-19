@@ -35,7 +35,7 @@ def train_poisoned(model_folder, poison_kwargs, train_kwargs):
     injector.save(injector_path)
     data = ((x_train, y_train), data[1], data[2])
 
-    model_init = get_VGG_CIFAR10
+    model_init = lambda: get_VGG_CIFAR10(dense_units=train_kwargs['model_size'])
     if 'sharding' in model_folder:
         n_shards = Config.from_json(os.path.join(model_folder, 'unlearn_config.json'))['n_shards']
         train_models(model_init, model_folder, data, n_shards, model_filename='poisoned_model.hdf5', **train_kwargs)

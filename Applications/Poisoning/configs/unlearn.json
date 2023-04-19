@@ -3,7 +3,8 @@
         "n_shards": [5, 10, 20]
     },
     "first-order": {
-        "tau": [2e5]
+        "tau": [2e-5],
+        "steps": [1]
     },
     "second-order": {
         "hvp_batch_size": [1024],
