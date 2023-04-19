@@ -2,8 +2,7 @@ import os
 import argparse
 
 import numpy as np
-from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, LearningRateScheduler, ReduceLROnPlateau
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
 from sklearn.metrics import classification_report
 
 from util import TrainingResult, measure_time
