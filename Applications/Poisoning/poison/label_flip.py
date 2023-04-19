@@ -4,9 +4,9 @@ import argparse
 import numpy as np
 from tensorflow.keras.losses import categorical_crossentropy
 
-from Applications.poisoning.dataset import Cifar10
-from Applications.poisoning.model import get_VGG_CIFAR10
-from Applications.poisoning.train import train
+from Applications.Poisoning.dataset import Cifar10
+from Applications.Poisoning.model import get_VGG_CIFAR10
+from Applications.Poisoning.train import train
 from util import UnlearningResult, MixedResult, GradientLoggingContext, LabelFlipResult, save_train_results
 
 

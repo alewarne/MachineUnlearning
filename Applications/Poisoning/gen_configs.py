@@ -1,7 +1,7 @@
 import os
 import argparse
 
-from Applications.poisoning.configs.config import Config
+from Applications.Poisoning.configs.config import Config
 
 from sklearn.model_selection import ParameterGrid
 

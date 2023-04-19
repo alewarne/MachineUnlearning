@@ -8,7 +8,7 @@ from tensorflow.keras.utils import to_categorical
 
 from Applications.BackdoorRemovalCNN import cross_pattern, distributed_pattern, noise_pattern, feature_pattern
 from Applications.BackdoorRemovalCNN import dump_pattern, _add_backdoor
-from Applications.poisoning.poison.label_flip import create_rand_offset, flip_labels
+from Applications.Poisoning.poison.label_flip import create_rand_offset, flip_labels
 
 
 class Injector(object):

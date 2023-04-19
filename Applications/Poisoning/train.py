@@ -7,9 +7,9 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.metrics import classification_report
 
 from util import TrainingResult, measure_time
-from Applications.poisoning.model import get_VGG_CIFAR10
-from Applications.poisoning.configs.config import Config
-from Applications.poisoning.dataset import Cifar10
+from Applications.Poisoning.model import get_VGG_CIFAR10
+from Applications.Poisoning.configs.config import Config
+from Applications.Poisoning.dataset import Cifar10
 
 
 def train(model_init, model_folder, data, epochs, batch_size, model_filename='best_model.hdf5', **kwargs):

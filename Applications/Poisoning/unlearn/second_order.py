@@ -3,11 +3,11 @@ from os.path import dirname as parent
 import json
 import argparse
 
-from Applications.poisoning.configs.config import Config
-from Applications.poisoning.model import get_VGG_CIFAR10
-from Applications.poisoning.poison.injector import LabelflipInjector
-from Applications.poisoning.dataset import Cifar10
-from Applications.poisoning.unlearn.common import evaluate_unlearning
+from Applications.Poisoning.configs.config import Config
+from Applications.Poisoning.model import get_VGG_CIFAR10
+from Applications.Poisoning.poison.injector import LabelflipInjector
+from Applications.Poisoning.dataset import Cifar10
+from Applications.Poisoning.unlearn.common import evaluate_unlearning
 from util import UnlearningResult, reduce_dataset
 
 

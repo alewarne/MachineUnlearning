@@ -11,7 +11,7 @@ from tensorflow.keras.backend import clear_session
 from tensorflow.keras.utils import to_categorical
 
 from util import LoggedGradientTape, ModelTmpState, CSVLogger, measure_time, GradientLoggingContext
-from Applications.poisoning.unlearn.core import approx_retraining
+from Applications.Poisoning.unlearn.core import approx_retraining
 
 
 def evaluate_model_diff(model, new_model, x_valid, y_valid, diverged=False, verbose=False, ref_acc=0.87):
