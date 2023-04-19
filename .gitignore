@@ -10,7 +10,7 @@ tags
 
 # project data that shouldn't be committed
 models
-train_test_data
+data
 
 # other
 *tmp*
