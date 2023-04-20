@@ -1,0 +1,5 @@
+{
+    "steps": 10,
+    "tau": 2e-05,
+    "_filename": "/home/lukpirch/workspace/MachineUnlearning/models/poisoning/budget-10000/seed-42/first-order/unlearn_config.json"
+}

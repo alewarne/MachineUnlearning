@@ -2,14 +2,13 @@ import os
 import argparse
 
 import numpy as np
-from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, LearningRateScheduler, ReduceLROnPlateau
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
 from sklearn.metrics import classification_report
 
 from util import TrainingResult, measure_time
-from Applications.poisoning.model import get_VGG_CIFAR10
-from Applications.poisoning.configs.config import Config
-from Applications.poisoning.dataset import Cifar10
+from Applications.Poisoning.model import get_VGG_CIFAR10
+from Applications.Poisoning.configs.config import Config
+from Applications.Poisoning.dataset import Cifar10
 
 
 def train(model_init, model_folder, data, epochs, batch_size, model_filename='best_model.hdf5', **kwargs):
@@ -60,9 +59,9 @@ def get_parser():
 
 
 def main(model_folder):
-    model_init = get_VGG_CIFAR10
     train_conf = os.path.join(model_folder, 'train_config.json')
     train_kwargs = Config.from_json(train_conf)
+    model_init = lambda: get_VGG_CIFAR10(dense_units=train_kwargs['model_size'])
     data = Cifar10.load()
     train(model_init, model_folder, data, **train_kwargs)
 

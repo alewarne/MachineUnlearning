@@ -3,12 +3,11 @@ import pickle
 from functools import partial
 
 import numpy as np
-from numpy.lib.function_base import flip
 from tensorflow.keras.utils import to_categorical
 
-from Applications.poisoning.poison.patterns import cross_pattern, distributed_pattern, noise_pattern, feature_pattern
-from Applications.poisoning.poison.patterns import dump_pattern, _add_backdoor
-from Applications.poisoning.poison.label_flip import create_rand_offset, flip_labels
+from Applications.Poisoning.poison.label_flip import flip_labels
+from Applications.Poisoning.poison.patterns import cross_pattern, distributed_pattern, noise_pattern, feature_pattern
+from Applications.Poisoning.poison.patterns import dump_pattern, add_pattern
 
 
 class Injector(object):
@@ -142,7 +141,7 @@ class BackdoorInjector(Injector):
                 backdoor_indices = np.random.choice(injectable_idx, n_backdoors, replace=False)
             bd_pattern = self.get_bd_pattern(img_shape)
             orig_samples = X[backdoor_indices]
-            backdoor_samples = _add_backdoor(X[backdoor_indices], bd_pattern)
+            backdoor_samples = add_pattern(X[backdoor_indices], bd_pattern)
             X[backdoor_indices] = backdoor_samples
             Y[backdoor_indices] = to_categorical(self.target, num_classes=n_classes)
         else:
@@ -171,7 +170,7 @@ class BackdoorInjector(Injector):
         img_shape = list(X.shape)
         img_shape[0] = 1  # shape of single image (for broadcasting later)
         bd_pattern = self.get_bd_pattern(img_shape)
-        X = _add_backdoor(X, bd_pattern)
+        X = add_pattern(X, bd_pattern)
         return X
 
     def remove_backdoors(self, X, filter_idx=None):

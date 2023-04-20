@@ -1,14 +1,13 @@
 import os
 import argparse
-from copy import deepcopy
 
-from Applications.poisoning.configs.config import Config
+from Applications.Poisoning.configs.config import Config
 
 from sklearn.model_selection import ParameterGrid
 
 
 def get_parser():
-    parser = argparse.ArgumentParser("gen_configs", description="Generate experiment configurations for GNU parallel.")
+    parser = argparse.ArgumentParser("gen_configs", description="Generate experiment configurations.")
     parser.add_argument("base_folder", type=str, help="base directory to save models and results in")
     parser.add_argument("train_conf", type=str, help="file with all training parameters to test")
     parser.add_argument("poison_conf", type=str, help="file with all poisoning parameters to test")
@@ -40,7 +39,7 @@ def gen_param_grid(base_dir, train_params, poison_params, unlearn_params):
                     model_subdir = f"{model_folder}/{mode}"
                 os.makedirs(model_subdir, exist_ok=True)
                 Config(f"{model_subdir}/unlearn_config.json", **p_unlearn).save()
-    
+
     # add clean model (budget == 0)
     model_folder = f"{base_dir}/clean"
     os.makedirs(model_folder, exist_ok=True)

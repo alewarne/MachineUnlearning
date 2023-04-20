@@ -1,0 +1,17 @@
+# standard python stuff
+__pycache__
+
+# OS-related generated files
+.DS_Store
+
+# hidden files/folders for local config (IDE etc.)
+.vscode
+tags
+
+# project data that shouldn't be committed
+models
+data
+
+# other
+*tmp*
+plot

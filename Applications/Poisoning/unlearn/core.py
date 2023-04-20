@@ -79,8 +79,9 @@ def get_inv_hvp_lissa(model, x, y, v, hvp_batch_size, scale, damping, iterations
     Rounds can be set to average the results over multiple runs to decrease variance and stabalize the results.
     """
     i = tf.constant(0)
+    hvp_batch_size = int(hvp_batch_size)
     n_batches = 100 * np.ceil(x.shape[0] / hvp_batch_size) if iterations == -1 else iterations
-    shuffle_indices = [tf.constant(np.random.permutation(range(x.shape[0])), dtype=tf.int32) for _ in range(rounds)]
+    shuffle_indices = [tf.constant(np.random.permutation(range(x.shape[0])), dtype=tf.int32) for _ in range(repititions)]
     def cond(i, u, shuff_idx, update_min): return tf.less(i, n_batches) and tf.math.is_finite(tf.norm(u[0]))
 
     def body(i, u, shuff_idx, update_min):
@@ -142,11 +143,15 @@ def approx_retraining(model, z_x, z_y, z_x_delta, z_y_delta, order=2, hvp_x=None
                       conjugate_gradients=False, verbose=False, **unlearn_kwargs):
     """ Perform parameter update using influence functions. """
     if order == 1:
+        tau = unlearn_kwargs.get('tau', 1)
+
         # first order update
         diff = get_gradients_diff(model, z_x, z_y, z_x_delta, z_y_delta)
         d_theta = diff
         diverged = False
     elif order == 2:
+        tau = 1  # tau not used by second-order
+
         # second order update
         diff = get_gradients_diff(model, z_x, z_y, z_x_delta, z_y_delta)
         # skip hvp if diff == 0

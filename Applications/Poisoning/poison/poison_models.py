@@ -2,12 +2,12 @@ import os
 from os.path import dirname as parent
 import argparse
 
-from Applications.poisoning.configs.config import Config
-from Applications.poisoning.train import train
-from Applications.poisoning.model import get_VGG_CIFAR10
-from Applications.poisoning.poison.injector import LabelflipInjector
-from Applications.poisoning.dataset import Cifar10
-from Applications.sharding.ensemble import train_models
+from Applications.Poisoning.configs.config import Config
+from Applications.Poisoning.train import train
+from Applications.Poisoning.model import get_VGG_CIFAR10
+from Applications.Poisoning.poison.injector import LabelflipInjector
+from Applications.Poisoning.dataset import Cifar10
+from Applications.Sharding.ensemble import train_models
 
 
 def get_parser():
@@ -22,7 +22,7 @@ def train_poisoned(model_folder, poison_kwargs, train_kwargs):
     (x_train, y_train), _, _ = data
 
     # inject label flips
-    if 'sharding' in model_folder:
+    if 'sharding' in str(model_folder):
         injector_path = os.path.join(parent(model_folder), 'injector.pkl')
     else:
         injector_path = os.path.join(model_folder, 'injector.pkl')
@@ -35,8 +35,8 @@ def train_poisoned(model_folder, poison_kwargs, train_kwargs):
     injector.save(injector_path)
     data = ((x_train, y_train), data[1], data[2])
 
-    model_init = get_VGG_CIFAR10
-    if 'sharding' in model_folder:
+    model_init = lambda: get_VGG_CIFAR10(dense_units=train_kwargs['model_size'])
+    if 'sharding' in str(model_folder):
         n_shards = Config.from_json(os.path.join(model_folder, 'unlearn_config.json'))['n_shards']
         train_models(model_init, model_folder, data, n_shards, model_filename='poisoned_model.hdf5', **train_kwargs)
     else:
@@ -44,7 +44,7 @@ def train_poisoned(model_folder, poison_kwargs, train_kwargs):
 
 
 def main(model_folder, config_file):
-    if 'sharding' in model_folder:
+    if 'sharding' in str(model_folder):
         poison_kwargs = Config.from_json(os.path.join(parent(model_folder), config_file))
         train_kwargs = Config.from_json(os.path.join(parent(model_folder), 'train_config.json'))
     else:

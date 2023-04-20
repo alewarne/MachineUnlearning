@@ -1,0 +1,9 @@
+{
+    "damping": 0.0001,
+    "hvp_batch_size": 1024,
+    "patience": 20,
+    "repititions": 1,
+    "scale": 200000.0,
+    "steps": 10,
+    "_filename": "/home/lukpirch/workspace/MachineUnlearning/models/poisoning/budget-10000/seed-42/second-order/unlearn_config.json"
+}

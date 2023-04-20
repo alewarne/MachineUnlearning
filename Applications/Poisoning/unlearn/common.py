@@ -11,7 +11,7 @@ from tensorflow.keras.backend import clear_session
 from tensorflow.keras.utils import to_categorical
 
 from util import LoggedGradientTape, ModelTmpState, CSVLogger, measure_time, GradientLoggingContext
-from Applications.poisoning.unlearn.core import approx_retraining
+from Applications.Poisoning.unlearn.core import approx_retraining
 
 
 def evaluate_model_diff(model, new_model, x_valid, y_valid, diverged=False, verbose=False, ref_acc=0.87):
@@ -32,6 +32,7 @@ def evaluate_unlearning(model_init, model_weights, data, delta_idx, y_train_orig
     clear_session()
     (x_train, y_train), _, (x_valid, y_valid) = data
     model = model_init()
+    params = np.sum(np.product([xi for xi in x.shape]) for x in model.trainable_variables).item()
     model.load_weights(model_weights)
     new_theta, diverged, logs, duration_s = unlearn_update(
         x_train, y_train, y_train_orig, delta_idx, model, x_valid, y_valid, unlearn_kwargs, verbose=verbose, cm_dir=cm_dir, log_dir=log_dir)
@@ -43,7 +44,7 @@ def evaluate_unlearning(model_init, model_weights, data, delta_idx, y_train_orig
 
     acc_before, acc_after, diverged = evaluate_model_diff(
         model, new_model, x_valid, y_valid, diverged, verbose, clean_acc)
-    return acc_before, acc_after, diverged, logs, duration_s
+    return acc_before, acc_after, diverged, logs, duration_s, params
 
 
 def unlearn_update(z_x, z_y, z_y_delta, delta_idx, model, x_val, y_val, unlearn_kwargs,
@@ -58,7 +59,7 @@ def unlearn_update(z_x, z_y, z_y_delta, delta_idx, model, x_val, y_val, unlearn_
     return new_theta, diverged, LoggedGradientTape.logs['unlearn'], duration_s
 
 
-def iter_approx_retraining(z_x, z_y_delta, model, x_val, y_val, delta_idx, hvp_batch_size=512, max_inner_steps=1,
+def iter_approx_retraining(z_x, z_y_delta, model, x_val, y_val, delta_idx, max_inner_steps=1,
                            steps=1, verbose=False, cm_dir=None, log_dir=None, **unlearn_kwargs):
     """Iterative approximate retraining.
 
@@ -78,6 +79,9 @@ def iter_approx_retraining(z_x, z_y_delta, model, x_val, y_val, delta_idx, hvp_b
         list: updated model parameters
         bool: whether the LiSSA algorithm diverged
     """
+
+    # take HVP batch size from kwargs
+    hvp_batch_size = unlearn_kwargs.get('hvp_batch_size', 512)
 
     # setup loggers
     if log_dir is None:
@@ -135,7 +139,7 @@ def iter_approx_retraining(z_x, z_y_delta, model, x_val, y_val, delta_idx, hvp_b
                     analysis_time += t()
 
             # get index of next delta set
-            idx, prio_idx = get_delta_idx(model, z_x, z_y_delta, hvp_batch_size, return_acc=False)
+            idx, prio_idx = get_delta_idx(model, z_x, z_y_delta, hvp_batch_size)
             with measure_time() as t:
                 if step_logger is not None:
                     new_errors = len(set(prio_idx) - set(delta_idx))
@@ -155,10 +159,9 @@ def iter_approx_retraining(z_x, z_y_delta, model, x_val, y_val, delta_idx, hvp_b
     return model_weights, diverged, duration_s
 
 
-def get_delta_idx(model, x, y, batch_size, return_acc=True):
+def get_delta_idx(model, x, y, batch_size):
     y_pred = np.argmax(batch_pred(model, x), axis=1)
     prio_idx = np.argwhere(y_pred != np.argmax(y, axis=1))[:, 0]
-    print(f">> {len(prio_idx)} samples in prio idx")
     idx = np.random.choice(prio_idx, min(batch_size, len(prio_idx)), replace=False)
     return idx, prio_idx
 

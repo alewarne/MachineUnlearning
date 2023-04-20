@@ -5,11 +5,11 @@ import json
 
 from tensorflow.keras.backend import clear_session
 
-from Applications.poisoning.unlearn.common import evaluate_model_diff
-from Applications.poisoning.configs.config import Config
-from Applications.poisoning.model import get_VGG_CIFAR10
-from Applications.poisoning.poison.injector import LabelflipInjector
-from Applications.poisoning.dataset import Cifar10
+from Applications.Poisoning.unlearn.common import evaluate_model_diff
+from Applications.Poisoning.configs.config import Config
+from Applications.Poisoning.model import get_VGG_CIFAR10
+from Applications.Poisoning.poison.injector import LabelflipInjector
+from Applications.Poisoning.dataset import Cifar10
 from util import UnlearningResult, reduce_dataset, measure_time
 
 
@@ -27,13 +27,13 @@ def run_experiment(model_folder, train_kwargs, poison_kwargs, unlearn_kwargs):
     # inject label flips
     injector_path = os.path.join(model_folder, 'injector.pkl')
     if os.path.exists(injector_path):
-        injector = LabelflipInjector.from_pickle()
+        injector = LabelflipInjector.from_pickle(injector_path)
     else:
         injector = LabelflipInjector(parent(model_folder), **poison_kwargs)
     x_train, y_train = injector.inject(x_train, y_train)
     data = ((x_train, y_train), data[1], data[2])
 
-    model_init = get_VGG_CIFAR10
+    model_init = lambda: get_VGG_CIFAR10(dense_units=train_kwargs['model_size'])
     poisoned_filename = 'poisoned_model.hdf5'
     repaired_filename = 'repaired_model.hdf5'
     eval_fine_tuning(model_folder, poisoned_filename, repaired_filename, model_init, data, y_train_orig, injector.injected_idx, train_kwargs, unlearn_kwargs)

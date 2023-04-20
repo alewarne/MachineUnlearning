@@ -4,7 +4,7 @@ import numpy as np
 
 
 class Cifar10(object):
-    dataset_dir = BASE_DIR / 'train_test_data/Cifar'
+    dataset_dir = BASE_DIR/'train_test_data'/'Cifar'
 
     def __init__(self, train=None, test=None, validation=None):
         if train is not None:
