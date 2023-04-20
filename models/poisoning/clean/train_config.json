@@ -1,0 +1,6 @@
+{
+    "epochs": 100,
+    "batch_size": 64,
+    "model_size": 512,
+    "_filename": "/home/lukpirch/workspace/MachineUnlearning/models/poisoning/clean/train_config.json"
+}
