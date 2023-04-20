@@ -8,6 +8,7 @@ This repository contains code related to the paper [Machine Unlearning for Featu
 * We recommend setting up a virtual environment (e.g. using [virtualenv](https://virtualenv.pypa.io/en/latest/user_guide.html))
 * Install depdendencies via `pip install -r requirements.txt`
 * Install optional dependencies (notebooks etc.) via `pip install -r opt_requirements.txt`
+* For the backdoor experiments, have a look at `example_notebooks/Cifar_data.iypnb`. This notebook shows how to setup the data as expected by our backdoor experiments.
 
 ### Code
 
