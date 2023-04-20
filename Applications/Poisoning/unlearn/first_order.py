@@ -28,7 +28,7 @@ def run_experiment(model_folder, train_kwargs, poison_kwargs, unlearn_kwargs, re
     # inject label flips
     injector_path = os.path.join(model_folder, 'injector.pkl')
     if os.path.exists(injector_path):
-        injector = LabelflipInjector.from_pickle()
+        injector = LabelflipInjector.from_pickle(injector_path)
     else:
         injector = LabelflipInjector(parent(model_folder), **poison_kwargs)
     x_train, y_train = injector.inject(x_train, y_train)
@@ -57,7 +57,7 @@ def first_order_unlearning(model_folder, poisoned_filename, repaired_filename, m
     log_dir = model_folder
 
     # start unlearning hyperparameter search for the poisoned model
-    with open(os.path.join(parent(parent(model_folder)), 'clean', 'train_results.json'), 'r') as f:
+    with open(model_folder.parents[2]/'clean'/'train_results.json', 'r') as f:
         clean_acc = json.load(f)['accuracy']
     repaired_filepath = os.path.join(model_folder, repaired_filename)
     cm_dir = os.path.join(model_folder, 'cm')

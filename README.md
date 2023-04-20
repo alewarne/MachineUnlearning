@@ -2,6 +2,12 @@
 
 This repository contains code related to the paper [Machine Unlearning for Features and Labels](https://arxiv.org/pdf/2108.11577.pdf) published at NDSS 2023 and is structured as follows:
 
+### Setup
+
+* We tested the code with `python3.7.7`
+* We recommend setting up a virtual environment (e.g. using [virtualenv](https://virtualenv.pypa.io/en/latest/user_guide.html))
+* Install depdendencies via `pip install -r requirements.txt`
+* Install optional dependencies (notebooks etc.) via `pip install -r opt_requirements.txt`
 
 ### Code
 

@@ -54,7 +54,7 @@ def _flip_labels(Y, rand_offset):
     return y_onehot
 
 
-def flip_labels(Y, budget=200, seed=42, target=-1):
+def flip_labels(Y, budget=200, seed=42, target=-1, verbose=False):
     np.random.seed(seed)
     idx = np.random.permutation(len(Y))
     if target >= 0:
@@ -69,11 +69,13 @@ def flip_labels(Y, budget=200, seed=42, target=-1):
     for s, t in zip(sources, targets):
         _idx = idx[np.argwhere(np.argmax(Y_orig[idx], axis=1) == s)[:, 0]][:budget]
         label = np.eye(10)[t].reshape(1, 10)
-        print(f">> flipping {len(_idx)} labels from {s} to {t}")
+        if verbose:
+            print(f">> flipping {len(_idx)} labels from {s} to {t}")
         Y[_idx] = label
         idx_list.append(_idx)
     idx = np.concatenate(idx_list, axis=0)
-    print(f">>> injected {len(idx)} flips into {len(Y)} labels")
+    if verbose:
+        print(f">>> injected {len(idx)} flips into {len(Y)} labels")
     return Y, idx
 
 

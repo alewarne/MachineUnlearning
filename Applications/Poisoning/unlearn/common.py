@@ -139,7 +139,7 @@ def iter_approx_retraining(z_x, z_y_delta, model, x_val, y_val, delta_idx, max_i
                     analysis_time += t()
 
             # get index of next delta set
-            idx, prio_idx = get_delta_idx(model, z_x, z_y_delta, hvp_batch_size, return_acc=False)
+            idx, prio_idx = get_delta_idx(model, z_x, z_y_delta, hvp_batch_size)
             with measure_time() as t:
                 if step_logger is not None:
                     new_errors = len(set(prio_idx) - set(delta_idx))
@@ -159,10 +159,9 @@ def iter_approx_retraining(z_x, z_y_delta, model, x_val, y_val, delta_idx, max_i
     return model_weights, diverged, duration_s
 
 
-def get_delta_idx(model, x, y, batch_size, return_acc=True):
+def get_delta_idx(model, x, y, batch_size):
     y_pred = np.argmax(batch_pred(model, x), axis=1)
     prio_idx = np.argwhere(y_pred != np.argmax(y, axis=1))[:, 0]
-    print(f">> {len(prio_idx)} samples in prio idx")
     idx = np.random.choice(prio_idx, min(batch_size, len(prio_idx)), replace=False)
     return idx, prio_idx
 

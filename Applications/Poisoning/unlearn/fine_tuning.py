@@ -27,7 +27,7 @@ def run_experiment(model_folder, train_kwargs, poison_kwargs, unlearn_kwargs):
     # inject label flips
     injector_path = os.path.join(model_folder, 'injector.pkl')
     if os.path.exists(injector_path):
-        injector = LabelflipInjector.from_pickle()
+        injector = LabelflipInjector.from_pickle(injector_path)
     else:
         injector = LabelflipInjector(parent(model_folder), **poison_kwargs)
     x_train, y_train = injector.inject(x_train, y_train)
