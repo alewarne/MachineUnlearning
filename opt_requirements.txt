@@ -1,0 +1,2 @@
+ipykernel==6.16.2
+tensorflow-datasets==4.8.2
