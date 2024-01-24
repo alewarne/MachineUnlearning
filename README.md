@@ -1,6 +1,6 @@
-# Machine Unlearning for Features and Labels
+# Machine Unlearning of Features and Labels
 
-This repository contains code related to the paper [Machine Unlearning for Features and Labels](https://arxiv.org/pdf/2108.11577.pdf) published at NDSS 2023 and is structured as follows:
+This repository contains code related to the paper [Machine Unlearning of Features and Labels](https://arxiv.org/pdf/2108.11577.pdf) published at NDSS 2023 and is structured as follows:
 
 ### Setup
 
